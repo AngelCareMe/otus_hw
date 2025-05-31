@@ -1,8 +1,9 @@
 package main
 
 import (
-	"golang.org/x/example/hello/reverse"
 	"testing"
+
+	"golang.org/x/example/hello/reverse"
 )
 
 func TestReverseString(t *testing.T) {
