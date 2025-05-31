@@ -3,8 +3,7 @@ package main
 import (
 	"fmt"
 
-	//nolint:depguard
-	"golang.org/x/example/hello/reverse"
+	"golang.org/x/example/hello/reverse" //nolint:depguard
 )
 
 func main() {
