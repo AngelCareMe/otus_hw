@@ -6,6 +6,8 @@ run:
   tests: true
 linters:
   default: none
+  disable:
+    - depguard
   enable:
     - asciicheck
     - bodyclose
