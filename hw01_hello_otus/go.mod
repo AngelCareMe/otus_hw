@@ -1,5 +1,5 @@
 module github.com/AngelCareMe/otus_hw/tree/master/hw01_hello_otus
 
-go 1.24
+go 1.23
 
 require golang.org/x/example/hello v0.0.0-20250520184441-e8420e48cb0a // indirect
