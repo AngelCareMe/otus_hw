@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+
+	//nolint:depguard
 	"golang.org/x/example/hello/reverse"
 )
 
