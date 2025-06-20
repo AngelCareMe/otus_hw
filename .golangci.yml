@@ -61,7 +61,6 @@ linters:
             - $gostd
             - github.com/stretchr/testify
             - golang.org/x/example/hello/reverse
-            - github.com/stretchr/testify/require
     funlen:
       lines: 150
       statements: 80
