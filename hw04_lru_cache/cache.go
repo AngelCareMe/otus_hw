@@ -29,7 +29,6 @@ func NewCache(capacity int) Cache {
 
 func (c *lruCache) Set(key Key, value interface{}) bool {
 	if item, exists := c.items[key]; exists {
-
 		item.Value = cacheItem{key: key, value: value}
 
 		c.queue.MoveToFront(item)

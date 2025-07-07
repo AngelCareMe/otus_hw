@@ -50,7 +50,26 @@ func TestCache(t *testing.T) {
 	})
 
 	t.Run("purge logic", func(t *testing.T) {
-		// Write me
+		c := NewCache(3)
+
+		c.Set("a", 1)
+		c.Set("b", 2)
+		c.Set("c", 3)
+
+		_, _ = c.Get("a")
+		c.Set("d", 4)
+
+		_, ok := c.Get("b")
+		require.False(t, ok, "элемент 'b' должен быть удалён из кэша")
+
+		_, ok = c.Get("a")
+		require.True(t, ok, "элемент 'a' должен остаться в кэше")
+
+		_, ok = c.Get("c")
+		require.True(t, ok, "элемент 'c' должен остаться в кэше")
+
+		_, ok = c.Get("d")
+		require.True(t, ok, "элемент 'd' должен быть в кэше")
 	})
 }
 
