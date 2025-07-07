@@ -6,7 +6,7 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/require" //nolint:depguard
 )
 
 func TestCache(t *testing.T) {
@@ -76,4 +76,30 @@ func TestCacheMultithreading(t *testing.T) {
 	}()
 
 	wg.Wait()
+}
+
+func TestCahce_OldestUsed(t *testing.T) {
+	c := NewCache(3)
+
+	c.Set("a", 1)
+	c.Set("b", 2)
+	c.Set("c", 3)
+
+	c.Get("a")
+
+	c.Set("d", 4)
+
+	_, ok := c.Get("b")
+	require.False(t, ok, "элемент 'b' не вытеснен")
+
+	_, ok = c.Get("c")
+	require.True(t, ok, "элемент 'c' не в кэше")
+
+	val, ok := c.Get("a")
+	require.True(t, ok)
+	require.Equal(t, 1, val)
+
+	val, ok = c.Get("d")
+	require.True(t, ok)
+	require.Equal(t, 4, val)
 }
