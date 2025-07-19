@@ -19,6 +19,7 @@ func Run(tasks []Task, n, m int) error {
 	taskCh := make(chan Task)
 	var wg sync.WaitGroup
 	var errCount int32
+	var maxActive int32
 	var once sync.Once
 
 	stop := make(chan struct{})
@@ -33,17 +34,18 @@ func Run(tasks []Task, n, m int) error {
 				if !ok {
 					return
 				}
-				if err := task(); err != nil {
+
+				_ = atomic.AddInt32(&maxActive, 1)
+				err := task()
+				atomic.AddInt32(&maxActive, -1)
+
+				if err != nil {
 					if m > 0 {
 						if atomic.AddInt32(&errCount, 1) > int32(m) {
-							once.Do(func() {
-								close(stop)
-							})
+							once.Do(func() { close(stop) })
 						}
 					} else if m <= 0 {
-						once.Do(func() {
-							close(stop)
-						})
+						once.Do(func() { close(stop) })
 					}
 				}
 			}
