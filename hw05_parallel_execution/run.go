@@ -19,9 +19,9 @@ func Run(tasks []Task, n, m int) error {
 	taskCh := make(chan Task)
 	var wg sync.WaitGroup
 	var errCount int32
+	var once sync.Once
 
 	stop := make(chan struct{})
-	var once sync.Once
 
 	worker := func() {
 		defer wg.Done()
@@ -34,10 +34,12 @@ func Run(tasks []Task, n, m int) error {
 					return
 				}
 				if err := task(); err != nil {
-					if m > 0 && atomic.AddInt32(&errCount, 1) > int32(m) {
-						once.Do(func() {
-							close(stop)
-						})
+					if m > 0 {
+						if atomic.AddInt32(&errCount, 1) > int32(m) {
+							once.Do(func() {
+								close(stop)
+							})
+						}
 					} else if m <= 0 {
 						once.Do(func() {
 							close(stop)
@@ -56,16 +58,16 @@ func Run(tasks []Task, n, m int) error {
 	for _, task := range tasks {
 		select {
 		case <-stop:
+			wg.Wait()
 			return ErrErrorsLimitExceeded
-		default:
-			taskCh <- task
+		case taskCh <- task:
 		}
 	}
 	close(taskCh)
 
 	wg.Wait()
 
-	if m > 0 && atomic.LoadInt32(&errCount) > int32(m) {
+	if (m > 0 && atomic.LoadInt32(&errCount) > int32(m)) || (m <= 0 && errCount > 0) {
 		return ErrErrorsLimitExceeded
 	}
 
