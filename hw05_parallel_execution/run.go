@@ -2,6 +2,7 @@ package hw05parallelexecution
 
 import (
 	"errors"
+	"math"
 	"sync"
 	"sync/atomic"
 )
@@ -25,6 +26,10 @@ func Run(tasks []Task, n, m int) error {
 		return nil
 	}
 
+	if m > math.MaxInt32 {
+		return errors.New("max errors count exceeds int32 limit")
+	}
+
 	taskCh := make(chan Task)
 	stop := make(chan struct{})
 	var wg sync.WaitGroup
@@ -45,7 +50,7 @@ func Run(tasks []Task, n, m int) error {
 				if err != nil {
 					if m <= 0 {
 						once.Do(func() { close(stop) })
-					} else if atomic.AddInt32(&errCount, 1) > int32(m) { //nolint:gosec
+					} else if atomic.AddInt32(&errCount, 1) > int32(m) {
 						once.Do(func() { close(stop) })
 					}
 				}
@@ -69,5 +74,5 @@ func Run(tasks []Task, n, m int) error {
 
 	wg.Wait()
 
-	return checkErrors(atomic.LoadInt32(&errCount), m) //nolint:gosec
+	return checkErrors(atomic.LoadInt32(&errCount), m)
 }
