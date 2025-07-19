@@ -12,6 +12,9 @@ var ErrErrorsLimitExceeded = errors.New("errors limit exceeded")
 type Task func() error
 
 func checkErrors(errCount int32, m int) error {
+	if m > math.MaxInt32 {
+		return errors.New("max errors count exceeds int32 limit")
+	}
 	if m > 0 && errCount > int32(m) {
 		return ErrErrorsLimitExceeded
 	}
@@ -50,7 +53,7 @@ func Run(tasks []Task, n, m int) error {
 				if err != nil {
 					if m <= 0 {
 						once.Do(func() { close(stop) })
-					} else if atomic.AddInt32(&errCount, 1) > int32(m) {
+					} else if atomic.AddInt32(&errCount, 1) > int32(m) { //nolint:gosec
 						once.Do(func() { close(stop) })
 					}
 				}
