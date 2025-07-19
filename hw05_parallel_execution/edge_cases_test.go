@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/require" //nolint:depguard
 )
 
-// Проверка при n <= 0 функция не запускает задачи
+// Проверка при n <= 0 функция не запускает задачи.
 func TestRunWithZeroOrNegativeWorkers(t *testing.T) {
 	var runTasksCount int32
 
@@ -29,7 +29,7 @@ func TestRunWithZeroOrNegativeWorkers(t *testing.T) {
 	require.Zero(t, atomic.LoadInt32(&runTasksCount), "tasks should not be executed when n <= 0")
 }
 
-// Проверка не запускается больше n воркеров
+// Проверка не запускается больше n воркеров.
 func TestRunDoesNotExceedWorkerLimit(t *testing.T) {
 	const expectedWorkers = 5
 	var startedWorkers int32
