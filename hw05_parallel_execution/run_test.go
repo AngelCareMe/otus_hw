@@ -8,8 +8,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stretchr/testify/require"
-	"go.uber.org/goleak"
+	"github.com/stretchr/testify/require" //nolint:depguard
+	"go.uber.org/goleak"                  //nolint:depguard
 )
 
 func TestRun(t *testing.T) {
@@ -24,7 +24,7 @@ func TestRun(t *testing.T) {
 		for i := 0; i < tasksCount; i++ {
 			err := fmt.Errorf("error from task %d", i)
 			tasks = append(tasks, func() error {
-				time.Sleep(time.Millisecond * time.Duration(rand.Intn(100)))
+				time.Sleep(time.Millisecond * time.Duration(rand.Intn(100))) //nolint:gosec
 				atomic.AddInt32(&runTasksCount, 1)
 				return err
 			})
@@ -35,7 +35,7 @@ func TestRun(t *testing.T) {
 		err := Run(tasks, workersCount, maxErrorsCount)
 
 		require.Truef(t, errors.Is(err, ErrErrorsLimitExceeded), "actual err - %v", err)
-		require.LessOrEqual(t, runTasksCount, int32(workersCount+maxErrorsCount), "extra tasks were started")
+		require.LessOrEqual(t, runTasksCount, int32(workersCount+maxErrorsCount), "extra tasks were started") //nolint:gosec
 	})
 
 	t.Run("tasks without errors", func(t *testing.T) {
@@ -46,7 +46,7 @@ func TestRun(t *testing.T) {
 		var sumTime time.Duration
 
 		for i := 0; i < tasksCount; i++ {
-			taskSleep := time.Millisecond * time.Duration(rand.Intn(100))
+			taskSleep := time.Millisecond * time.Duration(rand.Intn(100)) //nolint:gosec
 			sumTime += taskSleep
 
 			tasks = append(tasks, func() error {
