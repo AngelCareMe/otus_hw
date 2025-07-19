@@ -19,12 +19,16 @@ func TestConcurrency(t *testing.T) {
 	for i := range tasks {
 		tasks[i] = func() error {
 			curr := atomic.AddInt32(&activeGoroutines, 1)
-			if curr > maxActive {
-				atomic.StoreInt32(&maxActive, curr)
+			for {
+				currentMax := atomic.LoadInt32(&maxActive)
+				if curr <= currentMax {
+					break
+				}
+				if atomic.CompareAndSwapInt32(&maxActive, currentMax, curr) {
+					break
+				}
 			}
-			for i := 0; i < 1_000_000; i++ {
-				_ = i
-			}
+			time.Sleep(10 * time.Millisecond)
 			atomic.AddInt32(&activeGoroutines, -1)
 			return nil
 		}

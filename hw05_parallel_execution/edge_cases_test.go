@@ -3,6 +3,7 @@ package hw05parallelexecution
 import (
 	"sync/atomic"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require" //nolint:depguard
 )
@@ -38,12 +39,16 @@ func TestRunDoesNotExceedWorkerLimit(t *testing.T) {
 	for i := range tasks {
 		tasks[i] = func() error {
 			curr := atomic.AddInt32(&startedWorkers, 1)
-			if curr > maxWorkers {
-				atomic.StoreInt32(&maxWorkers, curr)
+			for {
+				currentMax := atomic.LoadInt32(&maxWorkers)
+				if curr <= currentMax {
+					break
+				}
+				if atomic.CompareAndSwapInt32(&maxWorkers, currentMax, curr) {
+					break
+				}
 			}
-			for i := 0; i < 1000; i++ {
-				_ = i
-			}
+			time.Sleep(1 * time.Millisecond)
 			atomic.AddInt32(&startedWorkers, -1)
 			return nil
 		}
