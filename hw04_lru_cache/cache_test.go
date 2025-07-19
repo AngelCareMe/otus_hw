@@ -6,7 +6,7 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/require" //nolint:depguard
 )
 
 func TestCache(t *testing.T) {
@@ -19,7 +19,6 @@ func TestCache(t *testing.T) {
 		_, ok = c.Get("bbb")
 		require.False(t, ok)
 	})
-
 	t.Run("simple", func(t *testing.T) {
 		c := NewCache(5)
 
@@ -50,7 +49,22 @@ func TestCache(t *testing.T) {
 	})
 
 	t.Run("purge logic", func(t *testing.T) {
-		// Write me
+		c := NewCache(3)
+		c.Set("a", 1)
+		c.Set("b", 2)
+		c.Set("c", 3)
+
+		_, _ = c.Get("a")
+		c.Set("d", 4)
+
+		_, ok := c.Get("b")
+		require.False(t, ok, "элемент 'b' должен быть удалён из кэша")
+		_, ok = c.Get("a")
+		require.True(t, ok, "элемент 'a' должен остаться в кэше")
+		_, ok = c.Get("c")
+		require.True(t, ok, "элемент 'c' должен остаться в кэше")
+		_, ok = c.Get("d")
+		require.True(t, ok, "элемент 'd' должен быть в кэше")
 	})
 }
 
@@ -71,9 +85,35 @@ func TestCacheMultithreading(t *testing.T) {
 	go func() {
 		defer wg.Done()
 		for i := 0; i < 1_000_000; i++ {
-			c.Get(Key(strconv.Itoa(rand.Intn(1_000_000))))
+			c.Get(Key(strconv.Itoa(rand.Intn(1_000_000)))) //nolint:gosec
 		}
 	}()
 
 	wg.Wait()
+}
+
+func TestCahce_OldestUsed(t *testing.T) {
+	c := NewCache(3)
+
+	c.Set("a", 1)
+	c.Set("b", 2)
+	c.Set("c", 3)
+
+	c.Get("a")
+
+	c.Set("d", 4)
+
+	_, ok := c.Get("b")
+	require.False(t, ok, "элемент 'b' не вытеснен")
+
+	_, ok = c.Get("c")
+	require.True(t, ok, "элемент 'c' не в кэше")
+
+	val, ok := c.Get("a")
+	require.True(t, ok)
+	require.Equal(t, 1, val)
+
+	val, ok = c.Get("d")
+	require.True(t, ok)
+	require.Equal(t, 4, val)
 }
