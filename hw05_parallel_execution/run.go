@@ -35,9 +35,16 @@ func Run(tasks []Task, n, m int) error {
 					return
 				}
 
-				_ = atomic.AddInt32(&maxActive, 1)
+				current := atomic.AddInt32(&maxActive, 1)
 				err := task()
 				atomic.AddInt32(&maxActive, -1)
+
+				for {
+					currentMax := atomic.LoadInt32(&maxActive)
+					if current <= currentMax || atomic.CompareAndSwapInt32(&maxActive, currentMax, current) {
+						break
+					}
+				}
 
 				if err != nil {
 					if m > 0 {
