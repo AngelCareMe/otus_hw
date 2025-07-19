@@ -1,7 +1,7 @@
 package hw04lrucache
 
 import (
-	"math/rand"
+	"math/rand" //nolint:gosec
 	"strconv"
 	"sync"
 	"testing"
