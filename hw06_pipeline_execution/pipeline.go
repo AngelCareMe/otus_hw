@@ -25,6 +25,7 @@ func wrapWithDone(in In, done In) Out {
 			case <-done:
 				// дочитываем канал, чтобы upstream не заблокировался
 				for range in {
+					_ = in
 				}
 				return
 			case val, ok := <-in:
@@ -34,6 +35,7 @@ func wrapWithDone(in In, done In) Out {
 				select {
 				case <-done:
 					for range in {
+						_ = in
 					}
 					return
 				case out <- val:

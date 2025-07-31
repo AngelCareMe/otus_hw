@@ -3,7 +3,7 @@ package hw06pipelineexecution
 import (
 	"testing"
 
-	"github.com/stretchr/testify/require" //nolint:depguard
+	"github.com/stretchr/testify/require"
 )
 
 func TestEmptyPipeline(t *testing.T) {
